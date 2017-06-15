@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping
+        package="Entity">
+    <class name="House"  table="T_House" select-before-update="true" dynamic-update = "true">
+        <!-- increment是由hibernate生成对象标识
+             identity是由底层数据库生成标识
+        -->
+        <id name="hId">
+            <generator class="identity"/>
+        </id>
+        <property name="hName" column="h_name"/>
+        <property name="hDetail" column="h_detail"/>
+        <property name="hAddress" column="h_address"/>
+        <many-to-one name="user" column="uId" class="User" cascade="save-update" not-null="false"/>
+    </class>
+</hibernate-mapping>

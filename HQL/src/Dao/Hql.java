@@ -1,5 +1,6 @@
 package Dao;
 
+import Entity.House;
 import Entity.User;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -23,9 +24,9 @@ public class Hql {
         public void SaveUser() throws ParseException {
         SessionFactory sf= SessionBuilder.getSessionFactory();
         User user = new User();
-        user.setuName("aa");
+        user.setuName("hh");
         user.setuBirthday(new Timestamp(new SimpleDateFormat("yyyy-mm-dd").parse("1997-01-01").getTime()));
-        user.setuGender("女");
+        user.setuGender("男");
         user.setuPassword("11");
         Session session = null;
         Transaction ts = null;
@@ -47,8 +48,6 @@ public class Hql {
             session.close();
         }
         }
-
-
     @Test
         public void getUser() {
         SessionFactory sf = SessionBuilder.getSessionFactory();
@@ -143,6 +142,84 @@ public class Hql {
         }catch (Exception e){
             if(session != null){
                 session.close();
+            }
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void getAllUser(){
+        SessionFactory sf = SessionBuilder.getSessionFactory();
+        Session session = null;
+        int pageSize = 3;
+        try{
+            session = sf.openSession();
+            Query query = session.createQuery("select count(*) from User");
+            int count = Integer.parseInt(query.uniqueResult().toString());
+            System.out.println(count);
+            int pages = (count%pageSize ==0)?count/pageSize:count/pageSize+1;
+            for(int i = 0 ; i < pages; i++){
+                        Query queryPage = session.createQuery("from User");
+                        queryPage.setFirstResult(i*pageSize);
+                        queryPage.setMaxResults(pageSize);
+                        List users= queryPage.list();
+                        for(int j = 0; j<users.size();j++){
+                            User user = (User)users.get(j);
+                            System.out.println(user.getuId());
+                        }
+            }
+        }catch (Exception e){
+            if(session != null){
+                session.close();
+            }
+            e.printStackTrace();
+        }
+    }
+    @Test
+        public void getUserByPre(){
+        SessionFactory sf = SessionBuilder.getSessionFactory();
+        Session session = null;
+        try{
+            session = sf.openSession();
+           Query query = session.createQuery("from User where uId = :uId");
+           query.setString("uId","1");
+           User user = (User) query.uniqueResult();
+           System.out.println(user.getuId());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    /*
+    *
+    * 关于一对多
+    *
+    * */
+    @Test
+    public void saveHouse(){
+        SessionFactory sf = SessionBuilder.getSessionFactory();
+        Session session = null;
+        Transaction ts = null;
+        try{
+            session = sf.openSession();
+            ts = session.beginTransaction();
+            User user = new User();
+            user.setuName("aa");
+            user.setuPassword("11");
+            user.setuGender("男");
+            user.setuBirthday(new Timestamp(new SimpleDateFormat("yyyy-mm-dd").parse("1997-01-01").getTime()));
+            session.save(user);
+            House house = new House();
+            house.sethName("of aa");
+            house.sethDetail("of aa");
+            house.sethAddress("abc");
+            house.setUser(user);
+            session.save(house);
+            ts.commit();
+        }catch(Exception e){
+            if(session != null){
+                session.close();
+            }
+            if(ts != null){
+                ts.rollback();
             }
             e.printStackTrace();
         }
